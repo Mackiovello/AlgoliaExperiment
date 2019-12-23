@@ -3,53 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Hej snygging!</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <title>Algolia experiment</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.3.1/themes/algolia-min.css"
+      integrity="sha256-HB49n/BZjuqiCtQQf49OdZn63XuKFaxcIHWf0HNKte8="
+      crossorigin="anonymous"
+    />
   </head>
   <body class="container">
-    <div class="searchbar">
-      <input class="search-input" type="text"/>
-      <button onclick="search()">Search</button>
-    </div>
-    <p id="books"></p>
+    <div id="searchbox" class="search-input"></div>
+    <div id="books"></div>
+    <div id="pagination"></div>
   </body>
 
+  <script
+    src="https://cdn.jsdelivr.net/npm/algoliasearch@3.35.1/dist/algoliasearchLite.min.js"
+    integrity="sha256-5rOQwvvJdM9oDYQYCGzaJuuTy6SUALjma3OtzEGyJM0="
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.0.0/dist/instantsearch.production.min.js"
+    integrity="sha256-6S7q0JJs/Kx4kb/fv0oMjS855QTz5Rc2hh9AkIUjUsk="
+    crossorigin="anonymous"
+  ></script>
   <script>
-    const apiUrl="https://www.googleapis.com/books/v1/volumes?q="
-    function search() {
-      const url = buildUrl()
-      getBooks(url);
-    }
-  
-    function getBooks(url) {
-      const https= new XMLHttpRequest();
-      https.open("GET", url);
-      https.send();
-      https.onreadystatechange=function() {
-        if(this.readyState==4 && this.status==200) {
-          showTitles(https.responseText)
+    const searchClient = algoliasearch(
+      "O50IR1NAO6",
+      "87b33aa20d00ba08bd35805367d9d1e0"
+    );
+
+    const search = instantsearch({
+      indexName: "book",
+      searchClient
+    });
+
+    search.addWidgets([
+      instantsearch.widgets.searchBox({
+        container: "#searchbox"
+      }),
+
+      instantsearch.widgets.hits({
+        container: "#books",
+        templates: {
+          item: `
+          <div>
+            <div class="hit-name">
+              {{#helpers.highlight}}{ "attribute": "name" }{{/helpers.highlight}}
+            </div>
+          </div>
+        `
         }
-      }
-    }
+      })
+    ]);
 
-    function buildUrl() {
-      const value = document.getElementsByClassName("search-input")[0].value
-      const url = apiUrl  + value
-      return url
-    } 
+    search.addWidget(
+      instantsearch.widgets.pagination({
+        container: "#pagination"
+      })
+    );
 
-    function showTitles(responseText) {
-      const bookElement = document.getElementById("books");
-
-      const responseJson = JSON.parse(responseText);
-      bookElement.innerHTML = ""
-      for (let i = 0; i < responseJson.items.length; i++) {
-        const book = responseJson.items[i];
-        const title = book.volumeInfo.title;
-
-        bookElement.innerHTML = bookElement.innerHTML + "<br/>" + title;
-      }
-    }
-
+    search.start();
   </script>
 </html>
