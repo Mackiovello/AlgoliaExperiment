@@ -49,8 +49,11 @@
         templates: {
           item: `
           <div>
-            <div class="hit-name">
-              {{#helpers.highlight}}{ "attribute": "name" }{{/helpers.highlight}}
+            <div class="hit-title">
+              {{#helpers.highlight}}{ "attribute": "title" }{{/helpers.highlight}}
+            </div>
+            <div class="hit-author">
+              {{#helpers.highlight}}{ "attribute": "author" }{{/helpers.highlight}}
             </div>
           </div>
         `
